@@ -4,13 +4,10 @@
 
 package com.mycompany.entradaexpress;
 
-/**
- *
- * @author fernanda.silva
- */
 public class EntradaExpress {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        var home = new FormHome();
+        home.setVisible(true);
     }
 }
