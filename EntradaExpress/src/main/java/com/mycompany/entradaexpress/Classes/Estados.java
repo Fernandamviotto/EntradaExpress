@@ -9,14 +9,28 @@ public class Estados {
     public int id;
     public String sigla;
     public String nome;
+    
+    public int getid(){
+        return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public static Estados criar(int pid, String psigla, String pnome) {
-        Estados objeto = new Estados();
-        objeto.id = pid;
-        objeto.sigla = psigla;
-        objeto.nome = pnome;
+    public String getSigla() {
+        return sigla;
+    }
 
-        return objeto;
+    public void setSigla(String sigla) {
+        this.sigla = sigla;
+    }
 
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 }
