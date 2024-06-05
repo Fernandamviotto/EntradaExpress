@@ -4,7 +4,7 @@
  */
 package com.mycompany.entradaexpress.Classes;
 
-public class Estados {
+public class Estado {
 
     public int id;
     public String sigla;

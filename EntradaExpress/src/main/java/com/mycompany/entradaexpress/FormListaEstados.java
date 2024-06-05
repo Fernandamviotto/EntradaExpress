@@ -1,10 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.entradaexpress;
 
-import com.mycompany.entradaexpress.Classes.Estados;
+import com.mycompany.entradaexpress.Classes.Estado;
 import java.util.ArrayList;
 
 /**
@@ -13,20 +9,23 @@ import java.util.ArrayList;
  */
 public class FormListaEstados extends javax.swing.JFrame {
 
-    public ArrayList<Estados> linhas = null;
+    public ArrayList<Estado> linhas = null;
 
     public FormListaEstados() {
         this.linhas = carregarLinhas();
         initComponents();
     }
 
-    private ArrayList<Estados> carregarLinhas() {
+    private ArrayList<Estado> carregarLinhas() {
         //futuramente este metodo ira conectar ma API e tratar os dados
 
-        ArrayList<Estados> minhaLista = new ArrayList<>();
+        ArrayList<Estado> estados = new ArrayList<>();
+        
+        
+        return estados;
+    }
+    
 
-
-        return minhaLista;
     }
 
     /**
