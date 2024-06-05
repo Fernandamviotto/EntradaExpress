@@ -3,10 +3,6 @@ package com.mycompany.entradaexpress;
 import com.mycompany.entradaexpress.Classes.Estado;
 import java.util.ArrayList;
 
-/**
- *
- * @author fernanda.silva
- */
 public class FormListaEstados extends javax.swing.JFrame {
 
     public ArrayList<Estado> linhas = null;
