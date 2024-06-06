@@ -3,7 +3,6 @@ package com.mycompany.entradaexpress;
 import com.mycompany.entradaexpress.Classes.Estado;
 import java.io.StringReader;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -35,7 +34,7 @@ public class FormListaEstados extends javax.swing.JFrame {
                 .build();
         
         // declarando a lista de estados
-        ArrayList<Estado> listaEstados = new ArrayList<Estado>();
+        ArrayList<Estado> listaEstados = new ArrayList<>();
         
         try {
             // Chamar a API para trazer os dados
@@ -67,8 +66,8 @@ public class FormListaEstados extends javax.swing.JFrame {
             JsonObject json = jsonArray.getJsonObject(i);
             Estado objEstado = new Estado();
             objEstado.id = json.getInt("id");
-            objEstado.nome = json.getString("nome");
-            objEstado.sigla = json.getString("sigla");
+            objEstado.nome = json.getString("name");
+            objEstado.sigla = json.getString("acronym");
 
             // Adiciono o retorno na lista
             listaEstados.add(objEstado);
@@ -87,93 +86,34 @@ public class FormListaEstados extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Lista de Estados");
-
-        jButton1.setText("NOVO");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Lista Estados"));
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "ID", "SIGLA", "NOME"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(9, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addGap(0, 100, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
+            .addGap(0, 100, Short.MAX_VALUE)
         );
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35))
+            .addGap(0, 841, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGap(0, 510, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        var form = new FormGerenciarEstados();
-        form.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        form.setVisible(true);
-    }//GEN-LAST:event_jButton1ActionPerformed
-    
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {
-        // TODO add your handling code here:
-        DefaultTableModel modelo = new DefaultTableModel();
-        modelo.addColumn("id");
-        modelo.addColumn("nome");
-        modelo.addColumn("sigla");
-
-        // popular o modelo de dados [linhas]
-        for (Estado estado : linhas) {
-            modelo.addRow(new Object[]{estado.id, estado.nome, estado.sigla});
-        }
-
-        this.tabelaDados.setModel(modelo);
-    }
     
     /**
      * @param args the command line arguments
@@ -211,9 +151,6 @@ public class FormListaEstados extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }
