@@ -1,14 +1,21 @@
 package com.mycompany.entradaexpress;
 
 import com.mycompany.entradaexpress.Classes.Estado;
-import java.util.ArrayList;
+import com.unicv.aulas.projetobilheteria.classes.Estado;
+import java.io.StringReader;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.swing.table.DefaultTableModel;
 
 
 public class FormListaEstados extends javax.swing.JFrame {
@@ -21,103 +28,55 @@ public class FormListaEstados extends javax.swing.JFrame {
     }
 
     private ArrayList<Estado> carregarLinhas() {
-       ArrayList<Estado> estados = new ArrayList<>();
-
+        // Configurando a requisição básica
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/estados"))
+                .GET()
+                .build();
+        
+        // declarando a lista de estados
+        ArrayList<Estado> listaEstados = new ArrayList<Estado>();
+        
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api-eventos-unicv.azurewebsites.net/api/estados"))
-                    .build();
-
+            // Chamar a API para trazer os dados
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<Estado> estadosList = mapper.readValue(response.body(), new TypeReference<List<Estado>>() {});
-
-            estados.addAll(estadosList);
+            // Verificar o código de retorno
+            if (response.statusCode() == 200) {
+                listaEstados = parseJsonArray(response.body());
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao listar estados");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro ao carregar dados da API: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
 
-        return estados;
+        return listaEstados;
     }
 
-    private void initComponents() {
-        jButton1 = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+    private static ArrayList<Estado> parseJsonArray(String jsonArrayString) {
+        ArrayList<Estado> listaEstados = new ArrayList<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Lista de Estados");
+        // Ler os dados do response
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonArrayString));
+        JsonArray jsonArray = jsonReader.readArray();
+        jsonReader.close();
 
-        jButton1.setText("NOVO");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        // Mapear cada objeto para a classe Estado
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject json = jsonArray.getJsonObject(i);
+            Estado objEstado = new Estado();
+            objEstado.id = json.getInt("id");
+            objEstado.nome = json.getString("nome");
+            objEstado.sigla = json.getString("sigla");
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Lista Estados"));
-
-        atualizarTabela();
-
-        jScrollPane1.setViewportView(jTable1);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(9, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        pack();
-    }
-
-    private void atualizarTabela() {
-        String[] colunas = {"ID", "SIGLA", "NOME"};
-        Object[][] dados = new Object[linhas.size()][3];
-
-        for (int i = 0; i < linhas.size(); i++) {
-            Estado estado = linhas.get(i);
-            dados[i][0] = estado.getId();
-            dados[i][1] = estado.getSigla();
-            dados[i][2] = estado.getNome();
+            // Adiciono o retorno na lista
+            listaEstados.add(objEstado);
         }
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(dados, colunas));
+        return listaEstados;
     }
-    
-
     
 
     /**
@@ -201,7 +160,22 @@ public class FormListaEstados extends javax.swing.JFrame {
         form.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         form.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
+    
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {
+        // TODO add your handling code here:
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("id");
+        modelo.addColumn("nome");
+        modelo.addColumn("sigla");
 
+        // popular o modelo de dados [linhas]
+        for (Estado estado : linhas) {
+            modelo.addRow(new Object[]{estado.id, estado.nome, estado.sigla});
+        }
+
+        this.tabelaDados.setModel(modelo);
+    }
+    
     /**
      * @param args the command line arguments
      */
