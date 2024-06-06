@@ -1,7 +1,6 @@
 package com.mycompany.entradaexpress;
 
 import com.mycompany.entradaexpress.Classes.Estado;
-import com.unicv.aulas.projetobilheteria.classes.Estado;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
