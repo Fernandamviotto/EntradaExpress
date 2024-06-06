@@ -15,6 +15,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.swing.table.DefaultTableModel;
+import java.util.Collections;
+import java.util.Comparator;
 
     public class FormListaMetPag extends javax.swing.JFrame {
     
@@ -48,6 +50,13 @@ import javax.swing.table.DefaultTableModel;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        Collections.sort(listaMetPagamento, new Comparator<MetPagamento>() {
+            @Override
+            public int compare(MetPagamento mp1, MetPagamento mp2) {
+                return Integer.compare(mp1.id, mp2.id);
+            }
+        });
 
         return listaMetPagamento;
 }
