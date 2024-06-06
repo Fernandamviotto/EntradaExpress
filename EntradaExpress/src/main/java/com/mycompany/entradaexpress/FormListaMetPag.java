@@ -91,6 +91,8 @@ import javax.swing.table.DefaultTableModel;
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Listar Metodos de Pagamento");
+        setBackground(new java.awt.Color(51, 51, 51));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -105,6 +107,7 @@ import javax.swing.table.DefaultTableModel;
         });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Metodos de Pagamento"));
+        jPanel1.setForeground(new java.awt.Color(51, 51, 51));
 
         tabelaDados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
