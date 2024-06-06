@@ -1,21 +1,80 @@
-         /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.entradaexpress;
 
-/**
- *
- * @author fernanda.silva
- */
-public class FormListaMetPag extends javax.swing.JFrame {
+import com.mycompany.entradaexpress.Classes.MetPagamento;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.swing.table.DefaultTableModel;
 
-    /**
-     * Creates new form FormListaMetPag
-     */
-    public FormListaMetPag() {
+    public class FormListaMetPag extends javax.swing.JFrame {
+    
+    public ArrayList<MetPagamento> linhas = null;
+
+        public FormListaMetPag() {
+            this.linhas = carregarLinhas();
         initComponents();
     }
+        
+        private ArrayList<MetPagamento> carregarLinhas(){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(""))
+                .GET()
+                .build();
+        
+        // declarando a lista de metodos de pagamento
+        ArrayList<MetPagamento> listaMetPagamento = new ArrayList<MetPagamento>();
+        
+        try {
+            // Chamar a API para trazer os dados
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Verificar o código de retorno
+            if (response.statusCode() == 200) {
+                listaMetPagamento = parseJsonArray(response.body());
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao listar Metodos de Pagamentos");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return listaMetPagamento;
+}
+
+        private static ArrayList<MetPagamento> parseJsonArray(String jsonArrayString) {
+        ArrayList<MetPagamento> listaMetPagamento = new ArrayList<>();
+
+        // Ler os dados do response
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonArrayString));
+        JsonArray jsonArray = jsonReader.readArray();
+        jsonReader.close();
+
+        // Mapear cada objeto para a classe Estado
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject json = jsonArray.getJsonObject(i);
+            MetPagamento objMetPagamento = new MetPagamento();
+            objMetPagamento.id = json.getInt("id");
+            objMetPagamento.nome = json.getString("name");
+
+            // Adiciono o retorno na lista
+            listaMetPagamento.add(objMetPagamento);
+        }
+
+        return listaMetPagamento;
+    }
+
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
