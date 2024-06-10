@@ -25,7 +25,7 @@ public class FormListaEstados extends javax.swing.JFrame {
         initComponents();
     }
     
-    private ArrayList<Estado> carregarLinhas() {
+    ArrayList<Estado> carregarLinhas() {
         // Configurando a requisição básica
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -171,9 +171,8 @@ public class FormListaEstados extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        var form = new FormGerenciarEstados();
-        form.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        form.setVisible(true);
+        FormGerenciarEstados formGerenciar = new FormGerenciarEstados(this);
+    formGerenciar.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -190,6 +189,20 @@ public class FormListaEstados extends javax.swing.JFrame {
         this.tabelaDados.setModel(modelo);
     }//GEN-LAST:event_formWindowOpened
 
+    
+       void atualizarTabela() {
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("ID");
+        modelo.addColumn("NOME");
+        modelo.addColumn("SIGLA");
+
+        for (Estado estado : linhas) {
+            modelo.addRow(new Object[]{estado.id, estado.nome, estado.sigla});
+        }
+
+        this.tabelaDados.setModel(modelo);
+    } 
+    
     /**
      * @param args the command line arguments
      */

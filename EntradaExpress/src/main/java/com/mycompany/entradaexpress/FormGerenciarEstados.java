@@ -1,19 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.entradaexpress;
 
-/**
- *
- * @author fernanda.silva
- */
-public class FormGerenciarEstados extends javax.swing.JFrame {
+import java.io.StringReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.swing.JOptionPane;
 
-    /**
-     * Creates new form FormGerenciarEstados
-     */
-    public FormGerenciarEstados() {
+public class FormGerenciarEstados extends javax.swing.JFrame {
+    
+    private FormListaEstados formListaEstados;
+
+        public FormGerenciarEstados(FormListaEstados formListaEstados) {
+        this.formListaEstados = formListaEstados;
         initComponents();
     }
 
@@ -138,13 +139,50 @@ public class FormGerenciarEstados extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        String nome = TextNome.getText();
+        String sigla = TextSigla.getText();
+
+        if (nome != null && !nome.isEmpty() && sigla != null && !sigla.isEmpty()) {
+            adicionarEstado(nome, sigla);
+        } else {
+            JOptionPane.showMessageDialog(this, "Nome e Sigla são obrigatórios.");
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    
+     private void adicionarEstado(String nome, String sigla) {
+        HttpClient client = HttpClient.newHttpClient();
+        JsonObject json = Json.createObjectBuilder()
+                .add("name", nome)
+                .add("acronym", sigla)
+                .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/estados"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                JOptionPane.showMessageDialog(this, "Estado adicionado com sucesso!");
+                formListaEstados.linhas = formListaEstados.carregarLinhas();  // Atualiza a lista de estados no form principal
+                formListaEstados.atualizarTabela();  // Atualiza a tabela no form principal
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao adicionar estado: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao adicionar estado.");
+        }
+    }   
+    
     /**
      * @param args the command line arguments
      */
@@ -175,7 +213,7 @@ public class FormGerenciarEstados extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FormGerenciarEstados().setVisible(true);
+                new FormGerenciarEstados(new FormListaEstados()).setVisible(true);
             }
         });
     }

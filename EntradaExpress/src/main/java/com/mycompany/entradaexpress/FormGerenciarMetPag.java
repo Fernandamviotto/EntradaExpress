@@ -4,6 +4,15 @@
  */
 package com.mycompany.entradaexpress;
 
+import java.io.StringReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.swing.JOptionPane;
+
 import com.mycompany.entradaexpress.Classes.MetPagamento;
 
 /**
