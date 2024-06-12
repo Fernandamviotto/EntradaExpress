@@ -25,7 +25,8 @@ public class FormListaMetPag extends javax.swing.JFrame {
         initComponents();
     }
 
-    private ArrayList<MetPagamento> carregarLinhas() {
+    ArrayList<MetPagamento> carregarLinhas() {
+        //configurando a requisição báisca
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/metodos-pagamento"))
@@ -166,9 +167,8 @@ public class FormListaMetPag extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        var form = new FormGerenciarMetPag();
-        form.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        form.setVisible(true);
+        FormGerenciarMetPag formGerenciar = new FormGerenciarMetPag(this);
+    formGerenciar.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -184,6 +184,18 @@ public class FormListaMetPag extends javax.swing.JFrame {
         this.tabelaDados.setModel(modelo);
     }//GEN-LAST:event_formWindowOpened
 
+    void atualizarTabela() {
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("ID");
+        modelo.addColumn("NOME");
+        
+        for (MetPagamento metPagamento : linhas) {
+            modelo.addRow(new Object[]{metPagamento.id, metPagamento.nome});
+        }
+
+        this.tabelaDados.setModel(modelo);
+    } 
+    
         /**
          * @param args the command line arguments
          */
@@ -225,4 +237,6 @@ public class FormListaMetPag extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tabelaDados;
     // End of variables declaration//GEN-END:variables
+
+
 }

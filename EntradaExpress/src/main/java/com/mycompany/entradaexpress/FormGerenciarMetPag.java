@@ -21,15 +21,15 @@ import com.mycompany.entradaexpress.Classes.MetPagamento;
  */
 public class FormGerenciarMetPag extends javax.swing.JFrame {
     
-    private MetPagamento dados;
+    private FormListaMetPag formListaMetPag;
 
     /**
      * Creates new form FormGerenciarMetPag
      */
-    public FormGerenciarMetPag() {
+    public FormGerenciarMetPag(FormListaMetPag formListaMetPag) {
+        this.formListaMetPag = formListaMetPag;
         initComponents();
         
-        dados = new MetPagamento();
     }
 
     /**
@@ -133,22 +133,50 @@ public class FormGerenciarMetPag extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        dados.nome = TxtNome.getName();
+        this.dispose();
+        String nome = TxtNome.getText();
         
         //decidir o que fazer
-        if(dados.id == 0){
+        if(nome != null && !nome.isEmpty()){
             //criar um registro novo
-            //API - POST
+            adicionarMetodo(nome);
         }else {
-            //atualizar um registro
-            //API - PUT
+            JOptionPane.showMessageDialog(this, "O nome é obrigatório.");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void adicionarMetodo(String nome) {
+        HttpClient client = HttpClient.newHttpClient();
+        JsonObject json = Json.createObjectBuilder()
+                .add("name", nome)             
+                .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/metodos-pagamento"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                JOptionPane.showMessageDialog(this, "Metodo adicionado com sucesso!");
+                formListaMetPag.linhas = formListaMetPag.carregarLinhas();  // Atualiza a lista de estados no form principal
+                formListaMetPag.atualizarTabela();  // Atualiza a tabela no form principal
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao adicionar metodo: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao adicionar metodo.");
+        }
+    }  
+    
     /**
      * @param args the command line arguments
      */
@@ -179,7 +207,7 @@ public class FormGerenciarMetPag extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FormGerenciarMetPag().setVisible(true);
+                new FormGerenciarMetPag(new FormListaMetPag()).setVisible(true);
             }
         });
     }
