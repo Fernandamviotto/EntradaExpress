@@ -1,6 +1,5 @@
 package com.mycompany.entradaexpress;
 
-import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -8,16 +7,20 @@ import java.net.http.HttpResponse;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.swing.JOptionPane;
+import com.mycompany.entradaexpress.Classes.Estado;
 
 public class FormGerenciarEstados extends javax.swing.JFrame {
     
     private FormListaEstados formListaEstados;
+    private int id = 0;
 
-        public FormGerenciarEstados(FormListaEstados formListaEstados) {
+        public FormGerenciarEstados(FormListaEstados formListaEstados, int id) {
         this.formListaEstados = formListaEstados;
+        this.id = id;
         initComponents();
     }
 
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -143,7 +146,11 @@ public class FormGerenciarEstados extends javax.swing.JFrame {
         String sigla = TextSigla.getText();
 
         if (nome != null && !nome.isEmpty() && sigla != null && !sigla.isEmpty()) {
-            adicionarEstado(nome, sigla);
+        
+            if(id == 0)
+                adicionarEstado(nome, sigla);
+            else 
+                atualizarEstado(nome,sigla);
         } else {
             JOptionPane.showMessageDialog(this, "Nome e Sigla são obrigatórios.");
         }
@@ -153,6 +160,11 @@ public class FormGerenciarEstados extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    public void preencherCampos(Estado estado){
+        LabelID.setText(String.valueOf(estado.id));
+        TextNome.setText(estado.nome);
+        TextSigla.setText(estado.sigla);
+    }
     
      private void adicionarEstado(String nome, String sigla) {
         HttpClient client = HttpClient.newHttpClient();
@@ -182,6 +194,36 @@ public class FormGerenciarEstados extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Erro ao adicionar estado.");
         }
     }   
+     
+     private void atualizarEstado (String nome, String sigla) {
+         HttpClient client = HttpClient.newHttpClient();
+    JsonObject json = Json.createObjectBuilder()
+            .add("name", nome)
+            .add("acronym", sigla)
+            .build();
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/estados?id="+id))
+            .header("Content-Type", "application/json")
+            .PUT(HttpRequest.BodyPublishers.ofString(json.toString()))
+            .build();
+
+    try {
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            JOptionPane.showMessageDialog(this, "Estado atualizado com sucesso!");
+            formListaEstados.linhas = formListaEstados.carregarLinhas();  // Atualiza a lista de estados no form principal
+            formListaEstados.atualizarTabela();  // Atualiza a tabela no form principal
+            this.dispose();
+        } else {
+            System.out.println("REPONSE " + response.statusCode() );
+            JOptionPane.showMessageDialog(this, "Erro ao atualizar estado: " + response.body());
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        //JOptionPane.showMessageDialog(this, "Erro ao atualizar estado.");
+    }
+     }
     
     /**
      * @param args the command line arguments
@@ -213,7 +255,7 @@ public class FormGerenciarEstados extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FormGerenciarEstados(new FormListaEstados()).setVisible(true);
+                new FormGerenciarEstados(new FormListaEstados(),0).setVisible(true);
             }
         });
     }

@@ -1,14 +1,13 @@
 package com.mycompany.entradaexpress;
 
 import com.mycompany.entradaexpress.Classes.Estado;
+import com.mycompany.entradaexpress.FormGerenciarEstados;
 import java.io.StringReader;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JOptionPane;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -17,14 +16,14 @@ import javax.json.JsonReader;
 import javax.swing.table.DefaultTableModel;
 
 public class FormListaEstados extends javax.swing.JFrame {
-    
+
     public ArrayList<Estado> linhas = null;
 
     public FormListaEstados() {
         this.linhas = carregarLinhas();
         initComponents();
     }
-    
+
     ArrayList<Estado> carregarLinhas() {
         // Configurando a requisição básica
         HttpClient client = HttpClient.newHttpClient();
@@ -32,10 +31,10 @@ public class FormListaEstados extends javax.swing.JFrame {
                 .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/estados"))
                 .GET()
                 .build();
-        
+
         // declarando a lista de estados
         ArrayList<Estado> listaEstados = new ArrayList<Estado>();
-        
+
         try {
             // Chamar a API para trazer os dados
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -90,6 +89,7 @@ public class FormListaEstados extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tabelaDados = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Lista de Estados");
@@ -151,6 +151,13 @@ public class FormListaEstados extends javax.swing.JFrame {
             }
         });
 
+        jButton3.setText("DELETE");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -159,10 +166,12 @@ public class FormListaEstados extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(27, 27, 27)
+                        .addComponent(jButton3)
+                        .addGap(18, 18, 18)
                         .addComponent(jButton2)
-                        .addGap(31, 31, 31))
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())))
@@ -173,7 +182,8 @@ public class FormListaEstados extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -183,8 +193,8 @@ public class FormListaEstados extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        FormGerenciarEstados formGerenciar = new FormGerenciarEstados(this);
-    formGerenciar.setVisible(true);
+        FormGerenciarEstados formGerenciar = new FormGerenciarEstados(this, 0);
+        formGerenciar.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -202,11 +212,63 @@ public class FormListaEstados extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+        //pegar o item selecionado da lista
+        int selectedRow = tabelaDados.getSelectedRow();
 
-    
-       void atualizarTabela() {
+        if (selectedRow >= 0) {
+            Estado estadoSelecionado = linhas.get(selectedRow);
+            //chamar o form de gerenciar
+            FormGerenciarEstados formGerenciar = new FormGerenciarEstados(this, estadoSelecionado.id);
+            formGerenciar.preencherCampos(estadoSelecionado);
+
+            formGerenciar.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um estado para editar.");
+
+    }//GEN-LAST:event_jButton2ActionPerformed
+    }
+        
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        int linhasSelecionadas = this.tabelaDados.getSelectedRowCount();
+
+    if (linhasSelecionadas != 1) {
+        JOptionPane.showMessageDialog(this, "Selecione apenas um item para excluir");
+        return;
+    }
+
+    int confirmaExclusao = JOptionPane.showConfirmDialog(this, "Deseja excluir o registro?", "Confirmação", JOptionPane.YES_NO_OPTION);
+    if (confirmaExclusao == JOptionPane.YES_OPTION) {
+        int linha = this.tabelaDados.getSelectedRow();
+        int id = (int) this.tabelaDados.getValueAt(linha, 0);
+
+        // Chamar a API para exclusão
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/estados?id="+id))
+                .DELETE()
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                JOptionPane.showMessageDialog(this, "Registro excluído com sucesso");
+
+                // Recarregar a lista de estados
+                this.linhas = carregarLinhas();
+                atualizarTabela();
+            } else {
+                System.out.println("REPONSE " + response.statusCode() );
+                JOptionPane.showMessageDialog(this, "Erro ao excluir o registro");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            //JOptionPane.showMessageDialog(this, "Erro ao excluir o registro");
+        }
+    }
+    }//GEN-LAST:event_jButton3ActionPerformed
+  
+
+    void atualizarTabela() {
         DefaultTableModel modelo = new DefaultTableModel();
         modelo.addColumn("ID");
         modelo.addColumn("NOME");
@@ -217,8 +279,8 @@ public class FormListaEstados extends javax.swing.JFrame {
         }
 
         this.tabelaDados.setModel(modelo);
-    } 
-    
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -257,6 +319,7 @@ public class FormListaEstados extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tabelaDados;
