@@ -12,24 +12,18 @@ import java.net.http.HttpResponse;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.swing.JOptionPane;
-
 import com.mycompany.entradaexpress.Classes.MetPagamento;
 
-/**
- *
- * @author fernanda.silva
- */
 public class FormGerenciarMetPag extends javax.swing.JFrame {
-    
-    private FormListaMetPag formListaMetPag;
 
-    /**
-     * Creates new form FormGerenciarMetPag
-     */
-    public FormGerenciarMetPag(FormListaMetPag formListaMetPag) {
+    private FormListaMetPag formListaMetPag;
+    private int id = 0;
+
+    public FormGerenciarMetPag(FormListaMetPag formListaMetPag, int id) {
         this.formListaMetPag = formListaMetPag;
+        this.id = id;
         initComponents();
-        
+
     }
 
     /**
@@ -70,6 +64,12 @@ public class FormGerenciarMetPag extends javax.swing.JFrame {
         jLabel1.setText("ID");
 
         jLabel2.setText("NOME");
+
+        TxtNome.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TxtNomeActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -139,20 +139,29 @@ public class FormGerenciarMetPag extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.dispose();
         String nome = TxtNome.getText();
-        
+
         //decidir o que fazer
-        if(nome != null && !nome.isEmpty()){
+        if (nome != null && !nome.isEmpty()) {
             //criar um registro novo
             adicionarMetodo(nome);
-        }else {
+        } else {
             JOptionPane.showMessageDialog(this, "O nome é obrigatório.");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void TxtNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TxtNomeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TxtNomeActionPerformed
+
+    public void preencherCampos(MetPagamento metPagamento){
+        TextID.setText(String.valueOf(metPagamento.id));
+        TxtNome.setText(metPagamento.nome);
+    }
+    
     private void adicionarMetodo(String nome) {
         HttpClient client = HttpClient.newHttpClient();
         JsonObject json = Json.createObjectBuilder()
-                .add("name", nome)             
+                .add("name", nome)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/metodos-pagamento"))
@@ -175,8 +184,37 @@ public class FormGerenciarMetPag extends javax.swing.JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erro ao adicionar metodo.");
         }
-    }  
+    }
     
+    private void atualizarMetPag (String nome){
+        HttpClient client = HttpClient.newHttpClient();
+    JsonObject json = Json.createObjectBuilder()
+            .add("name", nome)
+            .build();
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/metodos-pagamento?id=" + id))
+            .header("Content-Type", "application/json")
+            .PUT(HttpRequest.BodyPublishers.ofString(json.toString()))
+            .build();
+
+    try {
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            JOptionPane.showMessageDialog(this, "Estado atualizado com sucesso!");
+            formListaMetPag.linhas = formListaMetPag.carregarLinhas();  // Atualiza a lista de estados no form principal
+            formListaMetPag.atualizarTabela();  // Atualiza a tabela no form principal
+            this.dispose();
+        } else {
+            System.out.println("REPONSE " + response.statusCode() );
+            JOptionPane.showMessageDialog(this, "Erro ao atualizar Metodo Pagamento: " + response.body());
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        //JOptionPane.showMessageDialog(this, "Erro ao atualizar estado.");
+    }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -207,7 +245,7 @@ public class FormGerenciarMetPag extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FormGerenciarMetPag(new FormListaMetPag()).setVisible(true);
+                new FormGerenciarMetPag(new FormListaMetPag(), 0).setVisible(true);
             }
         });
     }
