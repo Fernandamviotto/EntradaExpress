@@ -1,6 +1,7 @@
 package com.mycompany.entradaexpress;
 
 import com.mycompany.entradaexpress.Classes.Usuario;
+import com.mycompany.entradaexpress.FormGerenciarUser;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,6 +22,57 @@ public class FormListaUser extends javax.swing.JFrame {
     public FormListaUser() {
         this.linhas = carregarLinhas();
         initComponents();
+    }
+    
+    ArrayList<Usuario> carregarLinhas(){
+        //configurando a requisição básica
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/usuarios"))
+                .GET()
+                .build();
+        
+        ArrayList<Usuario> listaUsuario = new ArrayList<Usuario>();
+        
+        try {
+            // Chamar a API para trazer os dados
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Verificar o código de retorno
+            if (response.statusCode() == 200) {
+                listaUsuario = parseJsonArray(response.body());
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao listar Usuarios");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return listaUsuario;
+    }
+    
+    private static ArrayList<Usuario> parseJsonArray(String jsonArrayString){
+        ArrayList<Usuario> listaUsuario = new ArrayList<>();
+        
+        // Ler os dados do response
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonArrayString));
+        JsonArray jsonArray = jsonReader.readArray();
+        jsonReader.close();
+        
+        //Mapear cada objeto para a classe Usuario
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject json = jsonArray.getJsonObject(i);
+            Usuario objUsuario = new Usuario();
+            objUsuario.id = json.getInt("id");
+            objUsuario.nome = json.getString("name");
+            objUsuario.email = json.getString("email");
+            objUsuario.CPF = json.getString("cpf");
+
+            // Adiciono o retorno na lista
+            listaUsuario.add(objUsuario);
+        }
+
+        return listaUsuario;
     }
 
     /**
@@ -55,8 +107,18 @@ public class FormListaUser extends javax.swing.JFrame {
 
         jButton2.setText("EDITAR");
         jButton2.setToolTipText("");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("DELETE");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Itens cadastrados"));
 
@@ -123,7 +185,8 @@ public class FormListaUser extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        NOVO
+        FormGerenciarUser formGerenciar = new FormGerenciarUser(this, 0);
+        formGerenciar.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -141,6 +204,77 @@ public class FormListaUser extends javax.swing.JFrame {
         this.tabelaDados.setModel(modelo);
     }//GEN-LAST:event_formWindowOpened
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        //pegar o item selecionado da lista
+        int selectedRow = tabelaDados.getSelectedRow();
+
+        if (selectedRow >= 0) {
+            Usuario usuarioSelecionado = linhas.get(selectedRow);
+            //chamar o form de gerenciar
+            FormGerenciarUser formGerenciar = new FormGerenciarUser(this, usuarioSelecionado.id);
+            formGerenciar.preencherCampos(usuarioSelecionado);
+
+            formGerenciar.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um usuario para editar.");
+
+    }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        int linhasSelecionadas = this.tabelaDados.getSelectedRowCount();
+
+    if (linhasSelecionadas != 1) {
+        JOptionPane.showMessageDialog(this, "Selecione apenas um item para excluir");
+        return;
+    }
+
+    int confirmaExclusao = JOptionPane.showConfirmDialog(this, "Deseja excluir o registro?", "Confirmação", JOptionPane.YES_NO_OPTION);
+    if (confirmaExclusao == JOptionPane.YES_OPTION) {
+        int linha = this.tabelaDados.getSelectedRow();
+        int id = (int) this.tabelaDados.getValueAt(linha, 0);
+
+        // Chamar a API para exclusão
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-eventos-unicv.azurewebsites.net/api/usuarios?id="+id))
+                .DELETE()
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                JOptionPane.showMessageDialog(this, "Usuario excluído com sucesso");
+
+                // Recarregar a lista de usuarios
+                this.linhas = carregarLinhas();
+                atualizarTabela();
+            } else {
+                System.out.println("REPONSE " + response.statusCode() );
+                JOptionPane.showMessageDialog(this, "Erro ao excluir o usuario");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            //JOptionPane.showMessageDialog(this, "Erro ao excluir o registro");
+        }
+    }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    
+    void atualizarTabela() {
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("ID");
+        modelo.addColumn("NOME");
+        modelo.addColumn("EMAIL");
+        modelo.addColumn("CPF");
+
+        for (Usuario usuario : linhas) {
+            modelo.addRow(new Object[]{usuario.id, usuario.nome, usuario.email, usuario.CPF});
+        }
+
+        this.tabelaDados.setModel(modelo);
+    }
+    
     /**
      * @param args the command line arguments
      */
